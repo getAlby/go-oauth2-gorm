@@ -1,4 +1,4 @@
-module github.com/getAlby/oauth2-gorm
+module github.com/getAlby/go-oauth2-gorm
 
 require (
 	github.com/go-oauth2/oauth2/v4 v4.2.0
