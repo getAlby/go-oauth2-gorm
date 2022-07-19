@@ -101,13 +101,13 @@ func (s *TokenStore) gc() {
 	for range s.ticker.C {
 		now := time.Now().Unix()
 		var count int64
-		if err := s.db.Table(s.tableName).Where("expired_at <= ?", now).Or("code = ? and access = ? AND refresh = ?", "", "", "").Count(&count).Error; err != nil {
+		if err := s.db.Table(s.tableName).Where("expires_at <= ?", now).Or("code = ? and access = ? AND refresh = ?", "", "", "").Count(&count).Error; err != nil {
 			s.errorf("[ERROR]:%s\n", err)
 			return
 		}
 		if count > 0 {
 			// not soft delete.
-			if err := s.db.Table(s.tableName).Where("expired_at <= ?", now).Or("code = ? and access = ? AND refresh = ?", "", "", "").Unscoped().Delete(&TokenStoreItem{}).Error; err != nil {
+			if err := s.db.Table(s.tableName).Where("expires_at <= ?", now).Or("code = ? and access = ? AND refresh = ?", "", "", "").Unscoped().Delete(&TokenStoreItem{}).Error; err != nil {
 				s.errorf("[ERROR]:%s\n", err)
 			}
 		}
