@@ -77,6 +77,9 @@ func (s *ClientStore) GetByID(ctx context.Context, id string) (oauth2.ClientInfo
 
 	var item ClientStoreItem
 	err := s.db.WithContext(ctx).Table(s.tableName).Limit(1).Find(&item, "id = ?", id).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
