@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"time"
@@ -78,9 +77,7 @@ func (s *ClientStore) GetByID(ctx context.Context, id string) (oauth2.ClientInfo
 	}
 
 	var item ClientStoreItem
-	err := s.db.WithContext(ctx).Table(s.tableName).Limit(1).Find(&item, "id = ?", id).Error
-	fmt.Println(err)
-	fmt.Println(item)
+	err := s.db.WithContext(ctx).Table(s.tableName).Where("id = ?", id).First(&item).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
