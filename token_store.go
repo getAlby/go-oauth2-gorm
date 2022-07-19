@@ -210,7 +210,7 @@ func (s *TokenStore) GetByAccess(ctx context.Context, access string) (oauth2.Tok
 	if err := s.db.WithContext(ctx).
 		Table(s.tableName).
 		Where("access = ?", access).
-		Find(&item).Error; err != nil {
+		Find(&item).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
 	if item.ID == 0 {
