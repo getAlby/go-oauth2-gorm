@@ -16,7 +16,7 @@ import (
 type TokenStoreItem struct {
 	gorm.Model
 
-	ExpiredAt   int64
+	ExpiresAt   time.Time
 	Code        string `gorm:"type:varchar(512)"`
 	Access      string `gorm:"type:varchar(512)"`
 	Refresh     string `gorm:"type:varchar(512)"`
@@ -130,14 +130,14 @@ func (s *TokenStore) Create(ctx context.Context, info oauth2.TokenInfo) error {
 
 	if code := info.GetCode(); code != "" {
 		item.Code = code
-		item.ExpiredAt = info.GetCodeCreateAt().Add(info.GetCodeExpiresIn()).Unix()
+		item.ExpiresAt = info.GetCodeCreateAt().Add(info.GetCodeExpiresIn())
 	} else {
 		item.Access = info.GetAccess()
-		item.ExpiredAt = info.GetAccessCreateAt().Add(info.GetAccessExpiresIn()).Unix()
+		item.ExpiresAt = info.GetAccessCreateAt().Add(info.GetAccessExpiresIn())
 
 		if refresh := info.GetRefresh(); refresh != "" {
 			item.Refresh = info.GetRefresh()
-			item.ExpiredAt = info.GetRefreshCreateAt().Add(info.GetRefreshExpiresIn()).Unix()
+			item.ExpiresAt = info.GetRefreshCreateAt().Add(info.GetRefreshExpiresIn())
 		}
 	}
 
