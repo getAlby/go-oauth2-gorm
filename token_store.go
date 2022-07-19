@@ -99,7 +99,7 @@ func (s *TokenStore) errorf(format string, args ...interface{}) {
 
 func (s *TokenStore) gc() {
 	for range s.ticker.C {
-		now := time.Now().Unix()
+		now := time.Now()
 		var count int64
 		if err := s.db.Table(s.tableName).Where("expires_at <= ?", now).Or("code = ? and access = ? AND refresh = ?", "", "", "").Count(&count).Error; err != nil {
 			s.errorf("[ERROR]:%s\n", err)
