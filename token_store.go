@@ -133,11 +133,16 @@ func (s *TokenStore) Create(ctx context.Context, info oauth2.TokenInfo) error {
 		item.ExpiresAt = info.GetCodeCreateAt().Add(info.GetCodeExpiresIn())
 	} else {
 		item.Access = info.GetAccess()
-		item.ExpiresAt = info.GetAccessCreateAt().Add(info.GetAccessExpiresIn())
-
+		accessExpiry := info.GetAccessCreateAt().Add(info.GetAccessExpiresIn())
+		var refreshExpiry time.Time
 		if refresh := info.GetRefresh(); refresh != "" {
 			item.Refresh = info.GetRefresh()
-			item.ExpiresAt = info.GetRefreshCreateAt().Add(info.GetRefreshExpiresIn())
+			refreshExpiry = info.GetRefreshCreateAt().Add(info.GetRefreshExpiresIn())
+		}
+		if (accessExpiry.After(refreshExpiry)) {
+			item.ExpiresAt = accessExpiry
+		} else {
+			item.ExpiresAt = refreshExpiry
 		}
 	}
 
