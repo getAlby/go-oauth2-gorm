@@ -116,16 +116,11 @@ func (s *TokenStore) gc() {
 
 // Create create and store the new token information
 func (s *TokenStore) Create(ctx context.Context, info oauth2.TokenInfo) error {
-	jv, err := json.Marshal(info)
-	if err != nil {
-		return err
-	}
 	item := &TokenStoreItem{
 		ClientID:    info.GetClientID(),
 		UserID:      info.GetUserID(),
 		Scope:       info.GetScope(),
 		RedirectURI: info.GetRedirectURI(),
-		Data:        string(jv),
 	}
 
 	if code := info.GetCode(); code != "" {
@@ -141,10 +136,17 @@ func (s *TokenStore) Create(ctx context.Context, info oauth2.TokenInfo) error {
 		}
 		if (accessExpiry.After(refreshExpiry)) {
 			item.ExpiresAt = accessExpiry
+			info.SetRefreshExpiresIn(info.GetAccessExpiresIn())
 		} else {
 			item.ExpiresAt = refreshExpiry
 		}
 	}
+
+	jv, err := json.Marshal(info)
+	if err != nil {
+		return err
+	}
+	item.Data = string(jv)
 
 	return s.db.WithContext(ctx).Table(s.tableName).Create(item).Error
 }
